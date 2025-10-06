@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Parking System - Futuristic</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: #0a0e27;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(88, 86, 214, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 10%, rgba(56, 189, 248, 0.2) 0%, transparent 40%);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(56, 189, 248, 0.03) 2px,
+                rgba(56, 189, 248, 0.03) 4px
+            );
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: rgba(10, 14, 39, 0.8);
+            border: 2px solid rgba(56, 189, 248, 0.3);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(56, 189, 248, 0.2), inset 0 0 20px rgba(56, 189, 248, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #38bdf8, transparent);
+            animation: scanLine 3s linear infinite;
+        }
+
+        @keyframes scanLine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3em;
+            font-weight: 900;
+            background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.5));
+            }
+            to {
+                filter: drop-shadow(0 0 20px rgba(129, 140, 248, 0.8));
+            }
+        }
+
+        .subtitle {
+            color: #38bdf8;
+            font-size: 1.2em;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+
+        .status-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .status-card {
+            background: rgba(10, 14, 39, 0.9);
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid rgba(56, 189, 248, 0.3);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .status-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, transparent, rgba(56, 189, 248, 0.1), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+        }
+
+        .status-card:hover::before {
+            transform: translateX(100%);
+        }
+
+        .status-card:hover {
+            border-color: #38bdf8;
+            box-shadow: 0 0 30px rgba(56, 189, 248, 0.4);
+            transform: translateY(-5px);
+        }
+
+        .status-card h3 {
+            color: #38bdf8;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .status-card .number {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3em;
+            font-weight: 900;
+            margin: 10px 0;
+        }
+
+        .status-card.available .number {
+            color: #10b981;
+            text-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+        }
+
+        .status-card.occupied .number {
+            color: #ef4444;
+            text-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+        }
+
+        .status-card.total .number {
+            color: #818cf8;
+            text-shadow: 0 0 20px rgba(129, 140, 248, 0.5);
+        }
+
+        .parking-lot {
+            background: rgba(10, 14, 39, 0.9);
+            border-radius: 20px;
+            padding: 40px;
+            border: 2px solid rgba(56, 189, 248, 0.3);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(56, 189, 248, 0.2);
+        }
+
+        .parking-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .parking-space {
+            aspect-ratio: 3/2;
+            border: 3px solid;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .parking-space::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .parking-space:hover::before {
+            width: 100%;
+            height: 100%;
+        }
+
+        .parking-space:hover {
+            transform: translateY(-8px) scale(1.02);
+        }
+
+        .parking-space.libre {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(5, 150, 105, 0.3) 100%);
+            border-color: #10b981;
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.4), inset 0 0 20px rgba(16, 185, 129, 0.1);
+        }
+
+        .parking-space.ocupado {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(220, 38, 38, 0.3) 100%);
+            border-color: #ef4444;
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.4), inset 0 0 20px rgba(239, 68, 68, 0.1);
+        }
+
+        .parking-space.libre:hover {
+            box-shadow: 0 0 50px rgba(16, 185, 129, 0.6), inset 0 0 30px rgba(16, 185, 129, 0.2);
+        }
+
+        .parking-space.ocupado:hover {
+            box-shadow: 0 0 50px rgba(239, 68, 68, 0.6), inset 0 0 30px rgba(239, 68, 68, 0.2);
+        }
+
+        .parking-space.loading {
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.2) 0%, rgba(245, 158, 11, 0.3) 100%);
+            border-color: #fbbf24;
+            box-shadow: 0 0 30px rgba(251, 191, 36, 0.4);
+        }
+
+        .car-icon {
+            width: 90px;
+            height: 90px;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 0 10px currentColor);
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        .parking-space:hover .car-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .parking-space.libre .car-icon {
+            color: #10b981;
+        }
+
+        .parking-space.ocupado .car-icon {
+            color: #ef4444;
+        }
+
+        .space-label {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8em;
+            font-weight: 900;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .parking-space.libre .space-label {
+            color: #10b981;
+            text-shadow: 0 0 20px rgba(16, 185, 129, 0.8);
+        }
+
+        .parking-space.ocupado .space-label {
+            color: #ef4444;
+            text-shadow: 0 0 20px rgba(239, 68, 68, 0.8);
+        }
+
+        .space-status {
+            font-size: 1.3em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .parking-space.libre .space-status {
+            color: #6ee7b7;
+        }
+
+        .parking-space.ocupado .space-status {
+            color: #fca5a5;
+        }
+
+        .distance-info {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(0, 0, 0, 0.7);
+            color: #38bdf8;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9em;
+            font-weight: 700;
+            border: 1px solid rgba(56, 189, 248, 0.5);
+            z-index: 1;
+        }
+
+        .last-update {
+            text-align: center;
+            color: #38bdf8;
+            margin-top: 25px;
+            font-size: 1em;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+        }
+
+        .connection-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .connection-status.online {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            border: 2px solid #10b981;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .connection-status.offline {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 2px solid #ef4444;
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .loading .car-icon {
+            animation: pulse 1.5s infinite;
+        }
+
+        @media (max-width: 768px) {
+            .parking-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .status-bar {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="connection-status" id="connectionStatus">🔴 Desconectado</div>
+
+    <div class="container">
+        <header>
+            <h1>🚗 Car Parking System</h1>
+            <p class="subtitle">Sistema de Estacionamiento Inteligente IoT</p>
+        </header>
+
+        <div class="status-bar">
+            <div class="status-card available">
+                <h3>Espacios Disponibles</h3>
+                <div class="number" id="availableCount">-</div>
+            </div>
+            <div class="status-card occupied">
+                <h3>Espacios Ocupados</h3>
+                <div class="number" id="occupiedCount">-</div>
+            </div>
+            <div class="status-card total">
+                <h3>Total de Espacios</h3>
+                <div class="number" id="totalCount">4</div>
+            </div>
+        </div>
+
+        <div class="parking-lot">
+            <div class="parking-grid" id="parkingGrid">
+                <!-- Los espacios se generarán dinámicamente -->
+            </div>
+            <div class="last-update" id="lastUpdate">Última actualización: Conectando...</div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <script>
+        // 🔥 CONFIGURACIÓN DE FIREBASE
+        const firebaseConfig = {
+            apiKey: "AIzaSyB65kW5p7JZqhu2M2KiTSpKrz_CsguANnE",
+            authDomain: "iot-car-parking-43374.firebaseapp.com",
+            databaseURL: "https://iot-car-parking-43374-default-rtdb.firebaseio.com",
+            projectId: "iot-car-parking-43374",
+            storageBucket: "iot-car-parking-43374.firebasestorage.app",
+            messagingSenderId: "684631854933",
+            appId: "1:684631854933:web:881201582a31cecfa069dc",
+            measurementId: "G-NLWCGB0Y44"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Crear los espacios de estacionamiento (4 espacios)
+        function createParkingSpaces() {
+            const grid = document.getElementById('parkingGrid');
+            grid.innerHTML = '';
+            
+            for (let i = 1; i <= 4; i++) {
+                const space = document.createElement('div');
+                space.className = 'parking-space loading';
+                space.id = `space-${i}`;
+                
+                space.innerHTML = `
+                    <svg class="car-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M5,11L6.5,6.5H17.5L19,11M17.5,16A1.5,1.5 0 0,1 16,14.5A1.5,1.5 0 0,1 17.5,13A1.5,1.5 0 0,1 19,14.5A1.5,1.5 0 0,1 17.5,16M6.5,16A1.5,1.5 0 0,1 5,14.5A1.5,1.5 0 0,1 6.5,13A1.5,1.5 0 0,1 8,14.5A1.5,1.5 0 0,1 6.5,16M18.92,6C18.72,5.42 18.16,5 17.5,5H6.5C5.84,5 5.28,5.42 5.08,6L3,12V20A1,1 0 0,0 4,21H5A1,1 0 0,0 6,20V19H18V20A1,1 0 0,0 19,21H20A1,1 0 0,0 21,20V12L18.92,6Z"/>
+                    </svg>
+                    <div class="space-label">Espacio ${i}</div>
+                    <div class="space-status">Cargando...</div>
+                    <div class="distance-info">-- cm</div>
+                `;
+                
+                grid.appendChild(space);
+            }
+        }
+
+        // Escuchar cambios en tiempo real desde Firebase
+        function listenToFirebase() {
+            const parkingSlotsRef = database.ref('parking_slots');
+            
+            parkingSlotsRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                
+                if (data) {
+                    console.log('📡 Datos recibidos de Firebase:', data);
+                    updateConnectionStatus(true);
+                    
+                    // Convertir el objeto a array
+                    const slotsArray = [];
+                    for (let slotId in data) {
+                        slotsArray.push({
+                            slot_id: slotId,
+                            status: data[slotId].status,
+                            distance: data[slotId].distance
+                        });
+                    }
+                    
+                    updateParkingSpaces(slotsArray);
+                    updateStatistics(slotsArray);
+                    updateLastUpdateTime();
+                } else {
+                    console.warn('⚠️ No hay datos en Firebase');
+                    updateConnectionStatus(false);
+                }
+            }, (error) => {
+                console.error('❌ Error al leer Firebase:', error);
+                updateConnectionStatus(false);
+            });
+        }
+
+        // Actualizar espacios de estacionamiento
+        function updateParkingSpaces(slots) {
+            slots.forEach(slot => {
+                const spaceId = `space-${slot.slot_id}`;
+                const spaceElement = document.getElementById(spaceId);
+                
+                if (spaceElement) {
+                    const status = slot.status.toLowerCase();
+                    const distance = slot.distance || 0;
+                    
+                    spaceElement.className = `parking-space ${status}`;
+                    spaceElement.querySelector('.space-status').textContent = 
+                        status === 'libre' ? 'Libre' : 'Ocupado';
+                    spaceElement.querySelector('.distance-info').textContent = 
+                        `${distance.toFixed(1)} cm`;
+                }
+            });
+        }
+
+        // Actualizar estadísticas
+        function updateStatistics(slots) {
+            const available = slots.filter(s => s.status.toLowerCase() === 'libre').length;
+            const occupied = slots.filter(s => s.status.toLowerCase() === 'ocupado').length;
+            const total = slots.length;
+            
+            document.getElementById('availableCount').textContent = available;
+            document.getElementById('occupiedCount').textContent = occupied;
+            document.getElementById('totalCount').textContent = total;
+        }
+
+        // Actualizar estado de conexión
+        function updateConnectionStatus(isOnline) {
+            const statusElement = document.getElementById('connectionStatus');
+            if (isOnline) {
+                statusElement.className = 'connection-status online';
+                statusElement.textContent = '🟢 Conectado';
+            } else {
+                statusElement.className = 'connection-status offline';
+                statusElement.textContent = '🔴 Desconectado';
+            }
+        }
+
+        // Actualizar tiempo de última actualización
+        function updateLastUpdateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('es-PE');
+            document.getElementById('lastUpdate').textContent = 
+                `Última actualización: ${timeString}`;
+        }
+
+        // Inicializar
+        createParkingSpaces();
+        listenToFirebase();
+
+        console.log('🚀 Sistema iniciado - Conectado a Firebase Realtime Database');
+    </script>
+</body>
+</html>
