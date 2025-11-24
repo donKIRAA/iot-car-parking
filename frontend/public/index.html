@@ -3,19 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Car Parking San Carlos</title>
+    <title>Car Parking San Carlos - Dashboard</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
 
         :root {
-            --slot-width: 50px;
+            --slot-width: 50px; 
             --bg-color: #f4f4f9;
+            --sidebar-bg: #ffffff;
             --wall-color: #9ca3af;
             --wall-border: #4b5563;
             --slot-border: #374151;
-            --free-color: #86efac;   /* Verde */
-            --busy-color: #fca5a5;   /* Rojo */
-            --error-color: #f59e0b;  /* Ámbar (Fallo) */
+            --free-color: #86efac;
+            --busy-color: #fca5a5;
+            --error-color: #f59e0b;
             --text-color: #1f2937;
         }
 
@@ -25,245 +26,175 @@
             font-family: 'Roboto', sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
+            height: 100vh;
+            width: 100vw;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
+            overflow: hidden;
         }
 
+        /* --- HEADER --- */
         header {
             width: 100%;
-            max-width: 1100px;
+            height: 70px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             background: white;
-            padding: 15px 30px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
+            padding: 0 30px;
+            border-bottom: 1px solid #ccc;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            margin-bottom: 30px;
+            z-index: 10;
+            flex-shrink: 0;
         }
 
-        h1 { font-size: 1.5rem; text-transform: uppercase; font-weight: 700; }
+        h1 { font-size: 1.2rem; text-transform: uppercase; font-weight: 700; }
+        .user-welcome { font-size: 0.9rem; color: #666; }
 
-        /* --- LEYENDA --- */
-        .legend { display: flex; gap: 20px; font-size: 0.9rem; align-items: center; }
-        .legend-item { display: flex; align-items: center; gap: 8px; }
-        
-        .dot { width: 15px; height: 15px; border-radius: 3px; border: 1px solid #999; }
+        .legend { display: flex; gap: 15px; font-size: 0.85rem; align-items: center; }
+        .dot { width: 12px; height: 12px; border-radius: 2px; border: 1px solid #999; display: inline-block; margin-right: 5px; }
         .dot.free { background-color: var(--free-color); }
         .dot.busy { background-color: var(--busy-color); }
-        .dot.error { background-color: var(--error-color); animation: pulse-error 2s infinite; }
-        .dot.wall { background-color: var(--wall-color); opacity: 0.6; background-image: linear-gradient(45deg, #bbb 25%, transparent 25%, transparent 50%, #bbb 50%, #bbb 75%, transparent 75%, transparent); background-size: 10px 10px;}
+        .dot.error { background-color: var(--error-color); }
 
-        /* --- BOTÓN HISTORIAL --- */
-        .btn-history {
-            background-color: #374151;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
+        .btn-logout {
+            background-color: #dc2626; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-left: 10px;
+        }
+
+        /* --- LAYOUT PRINCIPAL --- */
+        .main-wrapper {
             display: flex;
-            align-items: center;
-            gap: 5px;
-            transition: background 0.2s;
-        }
-        .btn-history:hover { background-color: #1f2937; }
-
-        @keyframes pulse-error {
-            0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+            flex: 1;
+            height: calc(100vh - 70px);
+            width: 100%;
         }
 
-        /* --- CONTENEDOR MAPA --- */
-        .blueprint-container {
-            background: white;
-            padding: 40px;
-            border: 3px solid #000;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        /* --- SIDEBARS --- */
+        .sidebar {
+            width: 280px;
+            background: var(--sidebar-bg);
+            border-right: 1px solid #ccc;
             display: flex;
-            justify-content: center;
-            align-items: center;
-            width: fit-content;
-        }
-
-        .parking-grid {
-            display: grid;
-            grid-template-columns: repeat(20, var(--slot-width));
-            grid-template-rows: repeat(19, var(--slot-width)); 
-            gap: 2px;
-        }
-
-        .slot, .structure, .entrance {
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 0.9rem;
-            font-weight: bold;
-        }
-
-        /* ESTRUCTURAS */
-        .structure {
-            background-color: var(--wall-color);
-            border: 1px solid var(--wall-border);
-            background-image: linear-gradient(45deg, #6b7280 25%, transparent 25%, transparent 50%, #6b7280 50%, #6b7280 75%, transparent 75%, transparent);
-            background-size: 10px 10px; 
-            opacity: 0.5;
-        }
-
-        /* COCHERAS */
-        .slot {
-            border: 2px solid var(--slot-border);
-            background-color: white;
             flex-direction: column;
-            color: #333;
-            z-index: 2;
-            transition: background-color 0.3s;
+            padding: 15px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+            z-index: 5;
         }
+
+        .history-sidebar {
+            width: 320px;
+            background: var(--sidebar-bg);
+            border-left: 1px solid #ccc;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+            box-shadow: -2px 0 5px rgba(0,0,0,0.05);
+            z-index: 5;
+        }
+
+        .history-header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 2px solid #eee; padding-bottom: 5px; margin-bottom: 15px;
+        }
+        .btn-search-icon {
+            background: none; border: none; cursor: pointer; font-size: 1.2rem; padding: 5px; border-radius: 50%; transition: background 0.2s;
+        }
+        .btn-search-icon:hover { background-color: #f3f4f6; }
+
+        .btn-full-history {
+            width: 100%; background-color: #4b5563; color: white;
+            padding: 10px; border: none; border-radius: 6px; margin-top: 15px;
+            cursor: pointer; font-weight: bold; font-size: 0.85rem;
+        }
+        .btn-full-history:hover { background-color: #374151; }
+
+        /* --- CONTENIDO CENTRAL --- */
+        .content-area {
+            flex: 1; display: flex; justify-content: center; align-items: flex-start;
+            padding: 30px; overflow: auto; background-color: var(--bg-color);
+        }
+
+        /* LISTAS */
+        .scroll-list { flex: 1; overflow-y: auto; padding-right: 5px; }
+        .scroll-list::-webkit-scrollbar { width: 6px; }
+        .scroll-list::-webkit-scrollbar-thumb { background-color: #ccc; border-radius: 3px; }
+        .list-unstyled { list-style: none; }
+
+        .sidebar-item { 
+            padding: 10px; border-bottom: 1px solid #f0f0f0; font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center;
+        }
+        .history-item {
+            background: #fff; border: 1px solid #eee; border-radius: 6px; padding: 10px; margin-bottom: 10px; font-size: 0.8rem; border-left: 4px solid #6b7280;
+        }
+        .history-item strong { display: block; font-size: 0.9rem; margin-bottom: 2px; }
+        .history-date { color: #666; font-size: 0.75rem; display: block; }
+
+        /* Elementos UI */
+        .btn-assign {
+            background-color: #2563eb; color: white; padding: 10px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; margin-bottom: 15px; font-size: 0.9rem;
+        }
+        .plate-display {
+            display: inline-block; background: #fbbf24; padding: 2px 6px; border-radius: 4px; font-weight: bold; border: 1px solid #d97706; margin-left: 5px; font-family: monospace; font-size: 0.85rem;
+        }
+        .timer-display { display: block; color: #666; font-size: 0.8rem; margin-top: 4px; font-style: italic; }
+        .btn-release {
+            background-color: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; border-radius: 6px; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; cursor: pointer;
+        }
+        .trash-icon { width: 16px; height: 16px; fill: currentColor; }
+
+        /* MAPA */
+        .blueprint-container {
+            background: white; padding: 40px; border: 3px solid #000; box-shadow: 0 15px 30px rgba(0,0,0,0.15); display: flex; justify-content: center; width: fit-content; margin: auto;
+        }
+        .parking-grid { display: grid; grid-template-columns: repeat(20, var(--slot-width)); grid-template-rows: repeat(19, var(--slot-width)); gap: 2px; }
+        .slot, .structure, .entrance { display: flex; justify-content: center; align-items: center; position: relative; font-weight: bold; }
+        .structure { background: var(--wall-color); opacity: 0.5; border: 1px solid var(--wall-border); }
+        .slot { border: 2px solid var(--slot-border); background: white; flex-direction: column; font-size: 0.9rem; }
         .slot.libre { background-color: var(--free-color); }
         .slot.ocupado { background-color: var(--busy-color); }
-        
-        /* ESTADO DE FALLO */
-        .slot.fallo {
-            background-color: var(--error-color);
-            color: white;
-            border-color: #b45309;
-            animation: pulse-error 2s infinite;
-        }
+        .slot.fallo { background-color: var(--error-color); }
+        .car-icon { width: 28px; height: 28px; fill: #374151; opacity: 0.1; }
+        .slot.ocupado .car-icon { opacity: 1; }
         .slot.fallo .car-icon { display: none; }
         .slot.fallo::after { content: "⚠️"; font-size: 1.5rem; }
 
-        .car-icon {
-            width: 28px;
-            height: 28px;
-            fill: #374151;
-            opacity: 0.1;
-            transition: opacity 0.3s;
-        }
-        .slot.ocupado .car-icon { opacity: 1; }
+        /* MAPPING */
+        .structure.corner-square { grid-area: 1 / 5 / 3 / 7; } .structure.corner-square-bottom { grid-area: 9 / 18 / 11 / 20; } .structure.middle-fill { grid-area: 11 / 12 / 14 / 15; }
+        #slot-21 { grid-area: 1 / 7 / 3 / 8; } #slot-22 { grid-area: 1 / 8 / 3 / 9; } #slot-23 { grid-area: 1 / 9 / 3 / 10; } #slot-24 { grid-area: 1 / 10 / 3 / 11; } #slot-25 { grid-area: 1 / 11 / 3 / 12; } #slot-26 { grid-area: 1 / 12 / 3 / 13; } #slot-27 { grid-area: 1 / 13 / 3 / 14; } #slot-28 { grid-area: 1 / 14 / 3 / 15; } #slot-29 { grid-area: 1 / 15 / 3 / 16; } #slot-30 { grid-area: 1 / 16 / 3 / 17; } #slot-31 { grid-area: 1 / 17 / 3 / 18; } .structure.tr { grid-area: 1 / 18 / 3 / 20; } 
+        #slot-32 { grid-area: 3 / 18 / 4 / 20; } #slot-33 { grid-area: 4 / 18 / 5 / 20; } #slot-34 { grid-area: 5 / 18 / 6 / 20; } #slot-35 { grid-area: 6 / 18 / 7 / 20; } #slot-36 { grid-area: 7 / 18 / 8 / 20; } #slot-37 { grid-area: 8 / 18 / 9 / 20; } 
+        #slot-38 { grid-area: 9 / 17 / 11 / 18; } #slot-39 { grid-area: 9 / 16 / 11 / 17; } #slot-40 { grid-area: 9 / 15 / 11 / 16; } #slot-41 { grid-area: 9 / 14 / 11 / 15; } #slot-42 { grid-area: 9 / 13 / 11 / 14; } #slot-43 { grid-area: 9 / 12 / 11 / 13; } 
+        #slot-20 { grid-area: 3 / 5 / 4 / 7; } #slot-19 { grid-area: 4 / 5 / 5 / 7; } #slot-18 { grid-area: 5 / 5 / 6 / 7; } #slot-17 { grid-area: 6 / 5 / 7 / 7; } #slot-16 { grid-area: 7 / 5 / 8 / 7; } #slot-15 { grid-area: 8 / 5 / 9 / 7; } #slot-14 { grid-area: 9 / 5 / 10 / 7; } #slot-13 { grid-area: 10 / 5 / 11 / 7; }
+        #slot-9  { grid-area: 11 / 3 / 13 / 4; } #slot-10 { grid-area: 11 / 4 / 13 / 5; } #slot-11 { grid-area: 11 / 5 / 13 / 6; } #slot-12 { grid-area: 11 / 6 / 13 / 7; } .structure.bl { grid-area: 11 / 1 / 13 / 3; } 
+        #slot-8 { grid-area: 13 / 1 / 14 / 3; } #slot-7 { grid-area: 14 / 1 / 15 / 3; }
+        #slot-6 { grid-area: 15 / 3 / 17 / 4; } #slot-5 { grid-area: 15 / 4 / 17 / 5; } #slot-4 { grid-area: 15 / 5 / 17 / 6; } #slot-3 { grid-area: 15 / 6 / 17 / 7; } #slot-2 { grid-area: 15 / 7 / 17 / 8; } #slot-1 { grid-area: 15 / 8 / 17 / 9; } .structure.corner-fill { grid-area: 15 / 1 / 17 / 3; }
+        .entrance { grid-area: 17 / 9 / 19 / 13; border-top: 2px dashed #333; }
+        #slot-44 { grid-area: 14 / 13 / 15 / 15; } #slot-45 { grid-area: 15 / 13 / 16 / 15; } #slot-46 { grid-area: 16 / 13 / 17 / 15; }
 
-        /* --- MAPPING GEOMÉTRICO --- */
-        .structure.corner-square { grid-area: 1 / 5 / 3 / 7; }
-        .structure.corner-square-bottom { grid-area: 9 / 18 / 11 / 20; }
-        .structure.middle-fill { grid-area: 11 / 12 / 14 / 15; }
+        /* --- MODALES --- */
+        .modal { display: none; position: fixed; z-index: 3000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(2px); }
+        .modal-content { background-color: white; margin: 10% auto; padding: 25px; border-radius: 8px; width: 90%; max-width: 400px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); position: relative; animation: slideDown 0.3s; }
+        .modal-content.large { max-width: 700px; }
+        @keyframes slideDown { from {top: -50px; opacity: 0;} to {top: 0; opacity: 1;} }
+        .close-modal { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; color: #999; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        .form-control { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; }
+        .btn-save { width: 100%; background-color: #10b981; color: white; padding: 12px; border: none; border-radius: 4px; font-size: 1rem; font-weight: bold; cursor: pointer; }
+        .btn-save:hover { background-color: #059669; }
+        .btn-search-action { width: 100%; background: #374151; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .error-msg { color: #dc2626; font-size: 0.85rem; margin-top: 5px; display: none; }
 
-        /* Zona Superior */
-        #slot-21 { grid-area: 1 / 7 / 3 / 8; } 
-        #slot-22 { grid-area: 1 / 8 / 3 / 9; }
-        #slot-23 { grid-area: 1 / 9 / 3 / 10; }
-        #slot-24 { grid-area: 1 / 10 / 3 / 11; }
-        #slot-25 { grid-area: 1 / 11 / 3 / 12; }
-        #slot-26 { grid-area: 1 / 12 / 3 / 13; }
-        #slot-27 { grid-area: 1 / 13 / 3 / 14; }
-        #slot-28 { grid-area: 1 / 14 / 3 / 15; }
-        #slot-29 { grid-area: 1 / 15 / 3 / 16; }
-        #slot-30 { grid-area: 1 / 16 / 3 / 17; }
-        #slot-31 { grid-area: 1 / 17 / 3 / 18; } 
-        .structure.tr { grid-area: 1 / 18 / 3 / 20; } 
-
-        /* Columna Derecha */
-        #slot-32 { grid-area: 3 / 18 / 4 / 20; }
-        #slot-33 { grid-area: 4 / 18 / 5 / 20; }
-        #slot-34 { grid-area: 5 / 18 / 6 / 20; }
-        #slot-35 { grid-area: 6 / 18 / 7 / 20; }
-        #slot-36 { grid-area: 7 / 18 / 8 / 20; } 
-        #slot-37 { grid-area: 8 / 18 / 9 / 20; } 
-
-        /* Fila Intermedia */
-        #slot-38 { grid-area: 9 / 17 / 11 / 18; }
-        #slot-39 { grid-area: 9 / 16 / 11 / 17; }
-        #slot-40 { grid-area: 9 / 15 / 11 / 16; } 
-        #slot-41 { grid-area: 9 / 14 / 11 / 15; } 
-        #slot-42 { grid-area: 9 / 13 / 11 / 14; }
-        #slot-43 { grid-area: 9 / 12 / 11 / 13; } 
-
-        /* Columna Izquierda */
-        #slot-20 { grid-area: 3 / 5 / 4 / 7; }
-        #slot-19 { grid-area: 4 / 5 / 5 / 7; }
-        #slot-18 { grid-area: 5 / 5 / 6 / 7; }
-        #slot-17 { grid-area: 6 / 5 / 7 / 7; }
-        #slot-16 { grid-area: 7 / 5 / 8 / 7; }
-        #slot-15 { grid-area: 8 / 5 / 9 / 7; }
-        #slot-14 { grid-area: 9 / 5 / 10 / 7; }
-        #slot-13 { grid-area: 10 / 5 / 11 / 7; }
-
-        /* Zona Inferior */
-        #slot-9  { grid-area: 11 / 3 / 13 / 4; }
-        #slot-10 { grid-area: 11 / 4 / 13 / 5; }
-        #slot-11 { grid-area: 11 / 5 / 13 / 6; }
-        #slot-12 { grid-area: 11 / 6 / 13 / 7; }
-        .structure.bl { grid-area: 11 / 1 / 13 / 3; } 
-        #slot-8 { grid-area: 13 / 1 / 14 / 3; }
-        #slot-7 { grid-area: 14 / 1 / 15 / 3; }
-
-        /* Fila Inferior */
-        #slot-6 { grid-area: 15 / 3 / 17 / 4; }
-        #slot-5 { grid-area: 15 / 4 / 17 / 5; }
-        #slot-4 { grid-area: 15 / 5 / 17 / 6; }
-        #slot-3 { grid-area: 15 / 6 / 17 / 7; }
-        #slot-2 { grid-area: 15 / 7 / 17 / 8; }
-        #slot-1 { grid-area: 15 / 8 / 17 / 9; }
-        .structure.corner-fill { grid-area: 15 / 1 / 17 / 3; }
-
-        /* Entrada */
-        .entrance { grid-area: 17 / 9 / 19 / 13; border-top: 2px dashed #333; text-align: center; display: flex; align-items: center; justify-content: center; }
-
-        /* Plazas 44-46 */
-        #slot-44 { grid-area: 14 / 13 / 15 / 15; } 
-        #slot-45 { grid-area: 15 / 13 / 16 / 15; }
-        #slot-46 { grid-area: 16 / 13 / 17 / 15; }
-
-        /* --- ALERTAS FLOTANTES --- */
-        .alert-container {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            z-index: 1000;
-            max-width: 350px;
-        }
-        .alert-box {
-            background: white;
-            border-left: 5px solid var(--error-color);
-            padding: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            border-radius: 4px;
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
-            animation: slideIn 0.3s ease-out;
-        }
-        .alert-content { font-size: 0.9rem; color: #333; }
-        .alert-close { background: none; border: none; font-weight: bold; color: #999; cursor: pointer; margin-left: 10px; }
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-
-        /* --- PANEL HISTORIAL --- */
-        .history-panel {
-            position: fixed;
-            top: 0; right: -300px;
-            width: 300px;
-            height: 100%;
-            background: white;
-            box-shadow: -2px 0 5px rgba(0,0,0,0.2);
-            padding: 20px;
-            overflow-y: auto;
-            transition: right 0.3s ease;
-            z-index: 2000;
-        }
-        .history-panel.open { right: 0; }
-        .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        .history-list { list-style: none; }
-        .history-item { padding: 10px; border-bottom: 1px solid #f3f4f6; font-size: 0.9rem; display: flex; justify-content: space-between; }
-        .history-time { color: #888; font-size: 0.8rem; }
-        .history-badge { background: var(--error-color); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; }
+        /* --- NAV JERÁRQUICA --- */
+        .nav-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .btn-back { background: none; border: 1px solid #ccc; padding: 5px 10px; border-radius: 4px; cursor: pointer; display: none; }
+        .grid-nav { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 15px; }
+        .nav-btn { background-color: #f3f4f6; border: 1px solid #d1d5db; padding: 15px; border-radius: 8px; cursor: pointer; text-align: center; font-weight: bold; color: #374151; transition: all 0.2s; }
+        .nav-btn:hover { background-color: #e5e7eb; transform: translateY(-2px); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .nav-btn.day-btn { background-color: #eff6ff; border-color: #bfdbfe; color: #1e40af; }
+        .history-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .history-table th, .history-table td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 0.9rem; }
+        .history-table th { background-color: #f9fafb; font-weight: bold; }
+        .history-table tr:nth-child(even) { background-color: #f9f9f9; }
 
     </style>
 </head>
@@ -271,168 +202,394 @@
 
     <header>
         <div>
-            <h1>SYSTEM CAR PARKING SAN CARLOS</h1>
+            <h1>CAR PARKING SAN CARLOS</h1>
+            <small id="user-display" class="user-welcome">Cargando...</small>
         </div>
         <div class="legend">
-            <div class="legend-item"><div class="dot free"></div> Libre (<span id="free-count">-</span>)</div>
-            <div class="legend-item"><div class="dot busy"></div> Ocupado (<span id="busy-count">-</span>)</div>
-            <div class="legend-item"><div class="dot error"></div> Alerta (<span id="error-count">0</span>)</div>
-            <button class="btn-history" onclick="toggleHistory()">📋 Historial</button>
+            <div><div class="dot free"></div>Libre (<span id="free-count">0</span>)</div>
+            <div><div class="dot busy"></div>Ocupado (<span id="busy-count">0</span>)</div>
+            <div><div class="dot error"></div>Alerta</div>
+            <button class="btn-logout" onclick="logout()">Salir</button>
         </div>
     </header>
 
-    <div id="history-panel" class="history-panel">
-        <div class="history-header">
-            <h3>Historial de Fallos</h3>
-            <button class="alert-close" onclick="toggleHistory()">✕</button>
-        </div>
-        <ul id="history-list" class="history-list">
-            <li style="color:#999; text-align:center;">Sin registros recientes</li>
-        </ul>
+    <div class="main-wrapper">
+        
+        <aside class="sidebar">
+            <button class="btn-assign" onclick="openAssignModal()">+ Asignar Placa a Plaza</button>
+            <h3 style="margin-bottom: 10px; font-size: 0.9rem; border-bottom: 2px solid #eee; padding-bottom: 5px;">Estado de Plazas</h3>
+            <div class="scroll-list">
+                <ul class="list-unstyled" id="slots-list">
+                    <li style="text-align: center; color: #999; padding: 20px;">Cargando...</li>
+                </ul>
+            </div>
+        </aside>
+
+        <main class="content-area">
+            <div class="blueprint-container">
+                <div class="parking-grid" id="grid-container">
+                    <div class="structure corner-square"></div>
+                    <div class="structure corner-square-bottom"></div>
+                    <div class="structure middle-fill"></div>
+                    <div class="structure tr"></div>
+                    <div class="structure bl"></div>
+                    <div class="structure corner-fill"></div>
+                    <div class="entrance">INGRESO ⬆</div>
+                </div>
+            </div>
+        </main>
+
+        <aside class="history-sidebar">
+            <div class="history-header">
+                <h3 style="margin: 0; font-size: 1rem;">Historial Vehicular</h3>
+                <button class="btn-search-icon" onclick="openSearchModal()" title="Buscar">🔍</button>
+            </div>
+            <div class="scroll-list">
+                <div id="history-container">
+                    <div style="text-align: center; color: #999; padding: 20px;">Cargando historial...</div>
+                </div>
+            </div>
+            <button class="btn-full-history" onclick="openFullHistory()">Ver Historial Completo</button>
+        </aside>
     </div>
 
-    <div class="blueprint-container">
-        <div class="parking-grid" id="grid-container">
-            
-            <div class="structure corner-square"></div>
-            <div class="structure corner-square-bottom"></div>
-            <div class="structure middle-fill"></div>
-
-            <div class="structure tr"></div>
-            <div class="structure bl"></div>
-            <div class="structure corner-fill"></div>
-            
-            <div class="entrance">INGRESO ⬆</div>
-            
+    <div id="assignModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeAssignModal()">&times;</span>
+            <h2 style="margin-bottom: 20px; text-align: center;">Registrar Vehículo</h2>
+            <div class="form-group">
+                <label>Número de Placa:</label>
+                <input type="text" id="plate-input" class="form-control" placeholder="Ej: ABC-123" maxlength="10" style="text-transform: uppercase;">
+                <div id="plate-error" class="error-msg"></div>
+                <small style="color:#888; font-size:0.8rem;">6-10 caracteres, letras/números, máx 1 guión.</small>
+            </div>
+            <div class="form-group">
+                <label>Seleccionar Plaza:</label>
+                <select id="slot-select" class="form-control"></select>
+            </div>
+            <button class="btn-save" onclick="saveAssignment()">Guardar Registro</button>
         </div>
     </div>
 
-    <div id="alert-system" class="alert-container"></div>
+    <div id="searchModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeSearchModal()">&times;</span>
+            <h2 style="margin-bottom: 20px; text-align: center;">Buscar en Historial</h2>
+            <div class="form-group">
+                <label>Buscar por Placa:</label>
+                <input type="text" id="search-plate" class="form-control" placeholder="Ej: ABC-123" style="text-transform:uppercase;">
+            </div>
+            <div class="form-group">
+                <label>Buscar por Fecha:</label>
+                <input type="date" id="search-date" class="form-control">
+            </div>
+            <button class="btn-search-action" onclick="filterHistory()">🔍 Buscar</button>
+        </div>
+    </div>
+
+    <div id="fullHistoryModal" class="modal">
+        <div class="modal-content large">
+            <span class="close-modal" onclick="closeFullHistory()">&times;</span>
+            <div class="nav-header">
+                <button id="nav-back-btn" class="btn-back" onclick="navigateBack()">⬅ Atrás</button>
+                <h3 id="nav-title" style="margin:0;">Seleccione Año</h3>
+            </div>
+            <div id="nav-container"></div>
+        </div>
+    </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 
     <script>
-
+        const firebaseConfig = {
+            apiKey: "AIzaSyB65kW5p7JZqhu2M2KiTSpKrz_CsguANnE",
+            authDomain: "iot-car-parking-43374.firebaseapp.com",
+            databaseURL: "https://iot-car-parking-43374-default-rtdb.firebaseio.com",
+            projectId: "iot-car-parking-43374",
+            storageBucket: "iot-car-parking-43374.firebasestorage.app",
+            messagingSenderId: "684631854933",
+            appId: "1:684631854933:web:881201582a31cecfa069dc"
+        };
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
+        const auth = firebase.auth();
 
-        const gridContainer = document.getElementById('grid-container');
-        const alertSystem = document.getElementById('alert-system');
-        const historyList = document.getElementById('history-list');
-        const carSvg = `<svg class="car-icon" viewBox="0 0 24 24"><path d="M18.92 6c-.2-.58-.76-1-1.42-1h-11c-.66 0-1.22.42-1.42 1L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-6zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg>`;
+        let assignmentsData = {}; 
+        let fullHistoryData = []; 
+        
+        // Navegación
+        let historyTree = {}; 
+        let currentLevel = 'years'; 
+        let selectedYear = null;
+        let selectedMonth = null;
 
-        // --- MODIFICACIÓN 1: ESTADO INICIAL = FALLO ---
-        for (let i = 1; i <= 46; i++) {
-            const div = document.createElement('div');
-            // Al crearse, nacen en estado 'fallo' hasta que Firebase diga lo contrario
-            div.className = 'slot fallo'; 
-            div.id = `slot-${i}`;
-            div.innerHTML = `${carSvg}<span>${i}</span>`;
-            gridContainer.appendChild(div);
-        }
-
-        database.ref('parking_slots').on('value', (snapshot) => {
-            const data = snapshot.val() || {}; 
-            updateUI(data);
+        auth.onAuthStateChanged(user => {
+            if (!user) window.location.href = "login.html";
+            else {
+                loadUserInfo(user);
+                initSystem();
+            }
         });
+        function logout() { auth.signOut().then(() => window.location.href = "login.html"); }
+        function loadUserInfo(user) {
+            database.ref('users/' + user.uid).once('value').then(snap => {
+                const d = snap.val();
+                document.getElementById('user-display').innerText = (d && d.name) ? `Hola, ${d.name}` : `Hola, ${user.email}`;
+            });
+        }
 
-        let activeAlerts = new Set();
-        let historyLog = [];
+        function initSystem() {
+            initParkingMap();
+            populateSlotSelect();
+            listenAssignments();
+            listenHistory(); 
+            setInterval(updateTimersView, 1000);
+        }
 
-        function updateUI(data) {
-            let free = 0, busy = 0, failures = 0;
-            
+        // --- MAPA ---
+        function initParkingMap() {
+            const gridContainer = document.getElementById('grid-container');
+            const carSvg = `<svg class="car-icon" viewBox="0 0 24 24"><path d="M18.92 6c-.2-.58-.76-1-1.42-1h-11c-.66 0-1.22.42-1.42 1L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-6z"/></svg>`;
             for (let i = 1; i <= 46; i++) {
+                if(!document.getElementById(`slot-${i}`)) {
+                    const div = document.createElement('div');
+                    div.className = 'slot fallo'; div.id = `slot-${i}`; div.innerHTML = `${carSvg}<span>${i}</span>`;
+                    gridContainer.appendChild(div);
+                }
+            }
+            database.ref('parking_slots').on('value', (snapshot) => { updateMapUI(snapshot.val() || {}); });
+        }
+
+        function updateMapUI(data) {
+             let free = 0, busy = 0;
+             for (let i = 1; i <= 46; i++) {
                 const slotEl = document.getElementById(`slot-${i}`);
-                
-                // --- MODIFICACIÓN 2: LÓGICA POR DEFECTO ---
-                // Si NO hay datos en Firebase para la plaza i, asumimos FALLO.
-                let status = 'fallo'; 
-                
+                if(!slotEl) continue;
+                let status = 'fallo';
                 const slotData = data[i] || data[i.toString()];
-                
-                // Solo si Firebase tiene datos, cambiamos a libre/ocupado
-                if (slotData && slotData.status) {
-                    status = slotData.status.toLowerCase();
-                }
-
+                if (slotData && slotData.status) status = slotData.status.toLowerCase();
                 slotEl.className = `slot ${status}`;
+                if (status === 'ocupado') busy++; else if (status === 'libre') free++;
+             }
+        }
 
-                if (status === 'ocupado') busy++;
-                else if (status === 'libre') free++;
-                else if (status === 'fallo') {
-                    failures++;
-                    // Mantenemos tu lógica de alertas:
-                    // Si la plaza es 'fallo' y no tenía alerta previa, se genera.
-                    // OJO: Esto generará alertas para las plazas que no tienen sensor.
-                    // Si te molesta que salgan 42 alertas, podrías filtrar aquí, 
-                    // pero lo dejo como pediste para que sea escalable.
-                    if (!activeAlerts.has(i)) {
-                        // Opcional: Puedes comentar estas 2 líneas si no quieres que el historial se llene de las plazas vacías
-                        // showAlert(i, "Fallo de Sensor / Sin Datos");
-                        // addToHistory(i, "Sin conexión");
-                        
-                        activeAlerts.add(i);
-                    }
+        // --- GESTIÓN DE ASIGNACIONES ---
+        function populateSlotSelect() {
+            const select = document.getElementById('slot-select');
+            select.innerHTML = "";
+            for(let i=1; i<=46; i++){
+                const opt = document.createElement('option'); opt.value = i; opt.innerText = `Plaza ${i}`; select.appendChild(opt);
+            }
+        }
+
+        const assignModal = document.getElementById('assignModal');
+        function openAssignModal() { 
+            document.getElementById('plate-input').value = ""; document.getElementById('plate-error').style.display = "none"; assignModal.style.display = "block"; 
+        }
+        function closeAssignModal() { assignModal.style.display = "none"; }
+
+        function saveAssignment() {
+            const plateInput = document.getElementById('plate-input');
+            const slotId = document.getElementById('slot-select').value;
+            let plate = plateInput.value.trim().toUpperCase();
+
+            if (plate.length < 6 || plate.length > 10) return showError("La placa debe tener entre 6 y 10 caracteres.");
+            const hyphenCount = (plate.match(/-/g) || []).length;
+            if (hyphenCount > 1) return showError("Solo se permite un guión.");
+            const validChars = /^[A-Z0-9-]+$/;
+            if (!validChars.test(plate)) return showError("Solo letras, números y guiones.");
+
+            database.ref(`assignments/${slotId}`).set({
+                plate: plate, startTime: Date.now()
+            }).then(() => {
+                closeAssignModal(); alert(`✅ Placa ${plate} asignada a Plaza ${slotId}`);
+            }).catch(err => alert("Error: " + err.message));
+        }
+
+        function showError(msg) { const el = document.getElementById('plate-error'); el.innerText = msg; el.style.display = "block"; }
+
+        function listenAssignments() {
+            database.ref('assignments').on('value', (snapshot) => {
+                assignmentsData = snapshot.val() || {}; renderSidebarList();
+            });
+        }
+
+        function renderSidebarList() {
+            const listContainer = document.getElementById('slots-list');
+            listContainer.innerHTML = "";
+            const trashSvg = `<svg class="trash-icon" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6zm2 4h14v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V10zm5 2v7h2v-7h-2zm4 0v7h2v-7h-2zM9 4V2h6v2h5v2H4V4h5z"/></svg>`;
+
+            for (let i = 1; i <= 46; i++) {
+                const li = document.createElement('li'); li.className = "sidebar-item";
+                const assignment = assignmentsData[i] || assignmentsData[i.toString()];
+                
+                if (assignment) {
+                    const timeString = calculateTime(assignment.startTime);
+                    li.innerHTML = `<div style="display:flex;flex-direction:column;"><div><strong>Plaza ${i}</strong> <span class="plate-display">${assignment.plate}</span></div><span class="timer-display">⏱ ${timeString}</span></div><button class="btn-release" onclick="confirmRelease(${i})" title="Liberar">${trashSvg}</button>`;
                 } else {
-                    if (activeAlerts.has(i)) {
-                        closeAlertAutomatically(i);
-                        activeAlerts.delete(i);
-                    }
+                    li.innerHTML = `<div style="color:#999;">Plaza ${i} <small>(Sin placa)</small></div>`;
                 }
-            }
-            
-            document.getElementById('free-count').textContent = free;
-            document.getElementById('busy-count').textContent = busy;
-            document.getElementById('error-count').textContent = failures;
-        }
-
-        function showAlert(slotId, message) {
-            const alertDiv = document.createElement('div');
-            alertDiv.className = 'alert-box';
-            alertDiv.id = `alert-box-${slotId}`;
-            alertDiv.innerHTML = `
-                <div class="alert-content">
-                    <strong>⚠️ Alerta: Plaza ${slotId}</strong><br>
-                    ${message}
-                </div>
-                <button class="alert-close" onclick="removeAlert(${slotId})">✕</button>
-            `;
-            alertSystem.appendChild(alertDiv);
-        }
-
-        function addToHistory(slotId, cause) {
-            const time = new Date().toLocaleTimeString();
-            if (historyLog.length === 0) historyList.innerHTML = '';
-            
-            historyLog.push({ id: slotId, time: time });
-
-            const item = document.createElement('li');
-            item.className = 'history-item';
-            item.innerHTML = `
-                <span><span class="history-badge">P${slotId}</span> ${cause}</span>
-                <span class="history-time">${time}</span>
-            `;
-            historyList.insertBefore(item, historyList.firstChild);
-        }
-
-        function toggleHistory() {
-            document.getElementById('history-panel').classList.toggle('open');
-        }
-
-        window.removeAlert = function(slotId) {
-            const el = document.getElementById(`alert-box-${slotId}`);
-            if (el) el.remove();
-        };
-
-        function closeAlertAutomatically(slotId) {
-            const el = document.getElementById(`alert-box-${slotId}`);
-            if (el) {
-                el.style.opacity = '0.5';
-                setTimeout(() => { if(el) el.remove(); }, 1000);
+                listContainer.appendChild(li);
             }
         }
+
+        window.confirmRelease = function(slotId) {
+            if(confirm(`¿Dar salida al vehículo de la plaza ${slotId}?`)) {
+                database.ref(`assignments/${slotId}`).once('value').then(snapshot => {
+                    const data = snapshot.val();
+                    if(data) {
+                        const historyRecord = { plate: data.plate, slot: slotId, entryTime: data.startTime, exitTime: Date.now() };
+                        database.ref('history').push(historyRecord);
+                    }
+                    database.ref(`assignments/${slotId}`).remove();
+                });
+            }
+        }
+
+        // --- HISTORIAL Y BÚSQUEDA ---
+        const searchModal = document.getElementById('searchModal');
+        function openSearchModal() { searchModal.style.display = "block"; }
+        function closeSearchModal() { searchModal.style.display = "none"; }
+
+        const fullHistoryModal = document.getElementById('fullHistoryModal');
+        function openFullHistory() { 
+            processHierarchy(); renderYears(); fullHistoryModal.style.display = "block"; 
+        }
+        function closeFullHistory() { fullHistoryModal.style.display = "none"; }
+
+        window.onclick = function(event) {
+            if (event.target == assignModal) closeAssignModal();
+            if (event.target == searchModal) closeSearchModal();
+            if (event.target == fullHistoryModal) closeFullHistory();
+        }
+
+        function listenHistory() {
+            database.ref('history').limitToLast(200).on('value', (snapshot) => {
+                fullHistoryData = [];
+                const data = snapshot.val();
+                if(data) {
+                    Object.keys(data).forEach(key => { fullHistoryData.push(data[key]); });
+                    fullHistoryData.sort((a, b) => b.exitTime - a.exitTime);
+                }
+                renderSidebarHistory(fullHistoryData);
+            });
+        }
+
+        function renderSidebarHistory(dataToRender) {
+            const container = document.getElementById('history-container');
+            container.innerHTML = "";
+            if (dataToRender.length === 0) { container.innerHTML = `<div style="text-align:center;color:#999;padding:20px;">Sin registros.</div>`; return; }
+
+            dataToRender.slice(0, 20).forEach(item => {
+                const entry = new Date(item.entryTime); const exit = new Date(item.exitTime);
+                const entryStr = entry.toLocaleDateString() + ' ' + entry.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+                const exitStr = exit.toLocaleDateString() + ' ' + exit.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+                const div = document.createElement('div'); div.className = "history-item";
+                div.innerHTML = `<strong>Placa: ${item.plate} <span style="float:right;color:#2563eb;">P${item.slot}</span></strong><span class="history-date">📥 Ingreso: ${entryStr}</span><span class="history-date">📤 Salida: ${exitStr}</span>`;
+                container.appendChild(div);
+            });
+        }
+
+        window.filterHistory = function() {
+            const plateQuery = document.getElementById('search-plate').value.trim().toUpperCase();
+            const dateQuery = document.getElementById('search-date').value;
+            const filtered = fullHistoryData.filter(item => {
+                const matchPlate = plateQuery ? item.plate.includes(plateQuery) : true;
+                let matchDate = true;
+                if (dateQuery) {
+                    const entryDate = new Date(item.entryTime).toISOString().split('T')[0];
+                    const exitDate = new Date(item.exitTime).toISOString().split('T')[0];
+                    matchDate = (entryDate === dateQuery || exitDate === dateQuery);
+                }
+                return matchPlate && matchDate;
+            });
+            renderSidebarHistory(filtered);
+            closeSearchModal();
+        }
+
+        // --- LÓGICA NAVEGACIÓN JERÁRQUICA ---
+        const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+
+        function processHierarchy() {
+            historyTree = {};
+            fullHistoryData.forEach(record => {
+                const date = new Date(record.exitTime);
+                const y = date.getFullYear(); const m = date.getMonth(); const d = date.getDate();
+                if(!historyTree[y]) historyTree[y] = {};
+                if(!historyTree[y][m]) historyTree[y][m] = {};
+                if(!historyTree[y][m][d]) historyTree[y][m][d] = [];
+                historyTree[y][m][d].push(record);
+            });
+        }
+
+        function navigateBack() {
+            if(currentLevel === 'records') renderDays(selectedYear, selectedMonth);
+            else if (currentLevel === 'days') renderMonths(selectedYear);
+            else if (currentLevel === 'months') renderYears();
+        }
+
+        function updateNavUI(title, showBack) {
+            document.getElementById('nav-title').innerText = title;
+            document.getElementById('nav-back-btn').style.display = showBack ? 'block' : 'none';
+        }
+
+        function renderYears() {
+            currentLevel = 'years'; updateNavUI("Seleccione Año", false);
+            const container = document.getElementById('nav-container'); container.innerHTML = '<div class="grid-nav"></div>';
+            const grid = container.querySelector('.grid-nav');
+            const years = Object.keys(historyTree).sort((a,b) => b-a);
+            if(years.length === 0) { container.innerHTML = "<p style='text-align:center'>No hay registros.</p>"; return; }
+            years.forEach(y => {
+                const btn = document.createElement('div'); btn.className = 'nav-btn'; btn.innerText = y;
+                btn.onclick = () => renderMonths(y); grid.appendChild(btn);
+            });
+        }
+
+        function renderMonths(year) {
+            currentLevel = 'months'; selectedYear = year; updateNavUI(`Año ${year} - Seleccione Mes`, true);
+            const container = document.getElementById('nav-container'); container.innerHTML = '<div class="grid-nav"></div>';
+            const grid = container.querySelector('.grid-nav');
+            const months = Object.keys(historyTree[year]).sort((a,b) => a-b);
+            months.forEach(m => {
+                const btn = document.createElement('div'); btn.className = 'nav-btn'; btn.innerText = monthNames[m];
+                btn.onclick = () => renderDays(year, m); grid.appendChild(btn);
+            });
+        }
+
+        function renderDays(year, month) {
+            currentLevel = 'days'; selectedMonth = month; updateNavUI(`${monthNames[month]} ${year} - Seleccione Día`, true);
+            const container = document.getElementById('nav-container'); container.innerHTML = '<div class="grid-nav"></div>';
+            const grid = container.querySelector('.grid-nav');
+            const days = Object.keys(historyTree[year][month]).sort((a,b) => a-b);
+            days.forEach(d => {
+                const btn = document.createElement('div'); btn.className = 'nav-btn day-btn'; btn.innerText = `Día ${d}`;
+                btn.onclick = () => renderDailyTable(year, month, d); grid.appendChild(btn);
+            });
+        }
+
+        function renderDailyTable(year, month, day) {
+            currentLevel = 'records'; updateNavUI(`Registros del ${day} de ${monthNames[month]} de ${year}`, true);
+            const container = document.getElementById('nav-container');
+            container.innerHTML = `<table class="history-table"><thead><tr><th>Plaza</th><th>Placa</th><th>Ingreso</th><th>Salida</th></tr></thead><tbody id="table-body"></tbody></table>`;
+            const records = historyTree[year][month][day].sort((a,b) => b.exitTime - a.exitTime);
+            const tbody = document.getElementById('table-body');
+            records.forEach(r => {
+                const inTime = new Date(r.entryTime).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+                const outTime = new Date(r.exitTime).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+                tbody.innerHTML += `<tr><td>${r.slot}</td><td><strong>${r.plate}</strong></td><td>${inTime}</td><td>${outTime}</td></tr>`;
+            });
+        }
+
+        function calculateTime(startTime) {
+            if (!startTime) return "...";
+            const now = Date.now(); const diff = now - startTime; if (diff < 0) return "0m";
+            const m = Math.floor((diff / 60000) % 60); const h = Math.floor((diff / 3600000) % 24); const d = Math.floor(diff / 86400000);
+            let str = ""; if (d > 0) str += `${d}d `; if (h > 0) str += `${h}h `; str += `${m}m`; return str;
+        }
+
+        function updateTimersView() { if (document.getElementById('slots-list')) renderSidebarList(); }
     </script>
 </body>
 </html>

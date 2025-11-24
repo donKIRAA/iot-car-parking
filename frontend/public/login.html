@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso - Car Parking IoT</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            position: relative;
+        }
+
+        h2 { color: #333; margin-bottom: 20px; }
+
+        .input-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* Contenedor relativo para posicionar el ojo */
+        .password-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            padding-right: 40px; /* Espacio para el ojo */
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1rem;
+            box-sizing: border-box; 
+        }
+
+        /* El ícono del ojo */
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            width: 20px;
+            height: 20px;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .toggle-password:hover { opacity: 1; }
+
+        .btn-primary {
+            width: 100%;
+            padding: 12px;
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.3s;
+        }
+        .btn-primary:hover { background-color: #1d4ed8; }
+
+        .btn-secondary {
+            width: 100%;
+            padding: 12px;
+            background-color: transparent;
+            color: #4b5563;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.2s;
+        }
+        .btn-secondary:hover { background-color: #f3f4f6; }
+
+        .form-section { display: none; animation: fadeIn 0.3s; }
+        .form-section.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .eye-icon { width: 20px; height: 20px; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="login-box" class="form-section active">
+            <h2>Iniciar Sesión</h2>
+            
+            <div class="input-group">
+                <label>Email</label>
+                <input type="email" id="login-email" placeholder="ejemplo@correo.com">
+            </div>
+
+            <div class="input-group">
+                <label>Contraseña</label>
+                <div class="password-wrapper">
+                    <input type="password" id="login-pass" placeholder="••••••••" maxlength="15">
+                    <div class="toggle-password" onclick="togglePass('login-pass', this)">
+                        <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-primary" onclick="login()">Ingresar</button>
+            <div style="margin-top: 15px; font-size: 0.9rem; color: #666;">
+                ¿No tienes cuenta?
+            </div>
+            <button class="btn-secondary" onclick="showRegister()">Crear Cuenta</button>
+        </div>
+
+        <div id="register-box" class="form-section">
+            <h2>Crear Cuenta</h2>
+            
+            <div class="input-group">
+                <label>Nombre</label>
+                <input type="text" id="reg-name" placeholder="Tu nombre">
+            </div>
+            <div class="input-group">
+                <label>Apellido</label>
+                <input type="text" id="reg-lastname" placeholder="Tu apellido">
+            </div>
+            <div class="input-group">
+                <label>Email</label>
+                <input type="email" id="reg-email" placeholder="ejemplo@correo.com">
+            </div>
+
+            <div class="input-group">
+                <label>Contraseña (Max 15)</label>
+                <div class="password-wrapper">
+                    <input type="password" id="reg-pass" placeholder="••••••••" maxlength="15">
+                    <div class="toggle-password" onclick="togglePass('reg-pass', this)">
+                        <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Confirmar Contraseña</label>
+                <div class="password-wrapper">
+                    <input type="password" id="reg-confirm-pass" placeholder="••••••••" maxlength="15">
+                    <div class="toggle-password" onclick="togglePass('reg-confirm-pass', this)">
+                        <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-primary" onclick="register()">Registrarme</button>
+            <button class="btn-secondary" onclick="showLogin()">Volver a Iniciar Sesión</button>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyB65kW5p7JZqhu2M2KiTSpKrz_CsguANnE",
+            authDomain: "iot-car-parking-43374.firebaseapp.com",
+            databaseURL: "https://iot-car-parking-43374-default-rtdb.firebaseio.com",
+            projectId: "iot-car-parking-43374",
+            storageBucket: "iot-car-parking-43374.firebasestorage.app",
+            messagingSenderId: "684631854933",
+            appId: "1:684631854933:web:881201582a31cecfa069dc"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+
+        // --- LÓGICA DE INTERFAZ ---
+        function showRegister() {
+            document.getElementById('login-box').classList.remove('active');
+            document.getElementById('register-box').classList.add('active');
+        }
+
+        function showLogin() {
+            document.getElementById('register-box').classList.remove('active');
+            document.getElementById('login-box').classList.add('active');
+        }
+
+        // --- LÓGICA DEL OJO (VER/OCULTAR) ---
+        const svgEyeOpen = `<svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
+        const svgEyeClosed = `<svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`;
+
+        function togglePass(inputId, iconElement) {
+            const input = document.getElementById(inputId);
+            if (input.type === "password") {
+                input.type = "text";
+                iconElement.innerHTML = svgEyeOpen; 
+            } else {
+                input.type = "password";
+                iconElement.innerHTML = svgEyeClosed; 
+            }
+        }
+
+        // --- INICIAR SESIÓN ---
+        function login() {
+            const email = document.getElementById('login-email').value;
+            const pass = document.getElementById('login-pass').value;
+
+            if (!email || !pass) { alert("⚠️ Ingrese email y contraseña"); return; }
+
+            auth.signInWithEmailAndPassword(email, pass)
+                .then(() => {
+                    window.location.href = "index.html"; // Redirigir si es correcto
+                })
+                .catch((error) => {
+                    alert("⚠️ Email y/o contraseña inválidos.");
+                });
+        }
+
+        // --- REGISTRAR USUARIO ---
+        function register() {
+            const name = document.getElementById('reg-name').value;
+            const lastname = document.getElementById('reg-lastname').value;
+            const email = document.getElementById('reg-email').value;
+            const pass = document.getElementById('reg-pass').value;
+            const confirm = document.getElementById('reg-confirm-pass').value;
+
+            // 1. Validar campos vacíos
+            if (!name || !lastname || !email || !pass || !confirm) {
+                alert("⚠️ Por favor complete todos los campos.");
+                return;
+            }
+
+            // 2. Validar longitud (redundante al maxlength pero bueno para seguridad)
+            if (pass.length > 15) {
+                alert("⚠️ La contraseña no puede exceder 15 caracteres.");
+                return;
+            }
+            if (pass.length < 6) {
+                alert("⚠️ La contraseña debe tener al menos 6 caracteres.");
+                return;
+            }
+
+            // 3. Validar coincidencia
+            if (pass !== confirm) {
+                alert("⚠️ Las contraseñas no coinciden.");
+                return;
+            }
+
+            // Crear en Firebase Auth
+            auth.createUserWithEmailAndPassword(email, pass)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    
+                    // Guardar datos extra en BD
+                    db.ref('users/' + user.uid).set({
+                        name: name,
+                        lastname: lastname,
+                        email: email,
+                        role: "user"
+                    }).then(() => {
+                        // Cerrar sesión y volver al login
+                        auth.signOut().then(() => {
+                            alert("✅ ¡Cuenta creada con éxito! Ahora inicia sesión.");
+                            // Limpiar
+                            document.getElementById('reg-name').value = "";
+                            document.getElementById('reg-lastname').value = "";
+                            document.getElementById('reg-email').value = "";
+                            document.getElementById('reg-pass').value = "";
+                            document.getElementById('reg-confirm-pass').value = "";
+                            showLogin();
+                        });
+                    });
+                })
+                .catch((error) => {
+                    if (error.code === 'auth/email-already-in-use') {
+                        alert("⚠️ Ese correo ya está registrado.");
+                    } else {
+                        alert("⚠️ Error: " + error.message);
+                    }
+                });
+        }
+    </script>
+</body>
+</html>

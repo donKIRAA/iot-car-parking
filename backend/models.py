@@ -7,3 +7,7 @@ class ParkingSlot(BaseModel):
 
 class ParkingUpdate(BaseModel):
     slots: List[ParkingSlot]
+
+class UserCreate(BaseModel):
+    email: str
+    password: str
