@@ -1,6 +1,9 @@
 from pydantic import BaseModel
+from typing import List
 
-class ParkingData(BaseModel):
-    slot_id: int        # ID de la plaza (por ejemplo, "P1", "P2")
-    status: str          # Estado: "ocupado" o "libre"
-    distance: float      # Distancia medida por el sensor (cm)
+class ParkingSlot(BaseModel):
+    slot_id: int
+    status: str
+
+class ParkingUpdate(BaseModel):
+    slots: List[ParkingSlot]

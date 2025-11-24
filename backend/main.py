@@ -1,15 +1,15 @@
 from fastapi import FastAPI, Request
-from fastapi.middleware.cors import CORSMiddleware  # 👈 IMPORTANTE
-from models import ParkingData
+from fastapi.middleware.cors import CORSMiddleware
+from models import ParkingUpdate, ParkingSlot
 from firebase_utils import save_parking_data, get_all_parking_data
 import time
 
 app = FastAPI(title="Backend IoT - Gestión de Estacionamientos")
 
-# 🌐 Configurar CORS - MUY IMPORTANTE
+# 🌐 Configurar CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Permite todos los orígenes
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -18,21 +18,28 @@ app.add_middleware(
 # Registro de última actualización de cada sensor
 last_update = {}
 
+# --- ENDPOINT PARA RECIBIR VARIOS SLOTS ---
 @app.post("/api/parking/update")
-def update_parking(data: ParkingData):
+def update_parking(data: ParkingUpdate):
     """
-    Recibe los datos del ESP32 (slot_id, status, distance)
-    y los guarda en Firebase. También registra el tiempo del último envío.
+    Recibe varios datos del ESP32 (array de plazas)
+    y los guarda en Firebase.
     """
-    save_parking_data(data.slot_id, data.status, data.distance)
-    last_update[data.slot_id] = time.time()
+    for slot in data.slots:
+        # Guardamos solo ID y STATUS
+        save_parking_data(slot.slot_id, slot.status)
+        last_update[slot.slot_id] = time.time()
+
     return {
-        "message": f"✅ Plaza {data.slot_id} actualizada a {data.status}",
-        "slot_id": data.slot_id,
-        "status": data.status,
-        "distance": data.distance
+        "message": "✅ Datos de plazas actualizados correctamente",
+        "total_slots": len(data.slots),
+        "slots": [
+            {"slot_id": s.slot_id, "status": s.status}
+            for s in data.slots
+        ]
     }
 
+# --- ENDPOINT PARA CONSULTAR ESTADO ---
 @app.get("/api/parking/status")
 def get_status():
     """
@@ -43,11 +50,11 @@ def get_status():
         return {"message": "⚠️ No hay datos disponibles aún."}
     return {"parking_slots": data}
 
+# --- MONITOREAR SENSORES ---
 @app.get("/api/sensors/monitor")
 def monitor_sensors():
     """
-    Verifica la funcionalidad de los sensores. Si uno no envía datos en más de 10s,
-    se marca como inactivo.
+    Verifica si los sensores siguen enviando datos.
     """
     current_time = time.time()
     sensors_status = {}
@@ -65,14 +72,12 @@ def monitor_sensors():
 
     return {"sensors_monitor": sensors_status}
 
+# --- ENDPOINT RAÍZ ---
 @app.get("/")
 def root(request: Request):
-    """
-    Endpoint raíz — genera las rutas completas automáticamente.
-    """
     base_url = str(request.base_url).rstrip("/")
     routes = {
-        "Actualizar plaza": f"{base_url}/api/parking/update",
+        "Actualizar plazas": f"{base_url}/api/parking/update",
         "Ver estado actual": f"{base_url}/api/parking/status",
         "Monitorear sensores": f"{base_url}/api/sensors/monitor",
     }
