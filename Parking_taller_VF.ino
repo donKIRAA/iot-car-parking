@@ -5,9 +5,9 @@
 // ==========================================
 // 1. CONFIGURACIÓN
 // ==========================================
-const char* ssid = "Navaz";       
-const char* password = "ab123456";        
-const char* serverUrl = "http://10.147.126.200:8000/api/parking/update"; 
+const char* ssid = "PLAZA";       
+const char* password = "palomita";        
+const char* serverUrl = "http://157.173.207.137:8000/api/parking/update";
 
 // ==========================================
 // 2. PINES
